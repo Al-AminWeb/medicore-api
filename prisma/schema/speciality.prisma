@@ -1,0 +1,16 @@
+model Speciality {
+  id          String  @id @default(uuid(7))
+  title       String  @unique
+  description String? @db.Text
+  icon        String? @db.VarChar(255)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  @@index([isDeleted], name: "idx_speciality_is_deleted")
+  @@index([title], name: "idx_speciality_title")
+  @@map("specialties")
+}
