@@ -12,7 +12,7 @@ app.use(express.json());
 app.use("/api/v1/", indexRoute)
 
 app.get('/', async (req: Request, res: Response) => {
-    const speciality = await prisma.speciality.create({
+    const speciality = await prisma.specialty.create({
         data: {
             title: "caridiology",
             id: "1"
