@@ -1,7 +1,8 @@
-import express, {Application, Request, Response} from "express";
-import {specialityRoute} from "./app/module/specialty/speciality.route";
+import express, {Application, NextFunction, Request, Response} from "express";
 import {indexRoute} from "./app/routes";
 import {prisma} from "./app/lib/prisma";
+import {globalErrorHandler} from "./app/middleware/globalErrorHandler";
+import {notFound} from "./app/middleware/notFound";
 
 const app: Application = express();
 
@@ -24,5 +25,8 @@ app.get('/', async (req: Request, res: Response) => {
     })
 });
 
+
+app.use(globalErrorHandler)
+app.use(notFound)
 
 export default app;
