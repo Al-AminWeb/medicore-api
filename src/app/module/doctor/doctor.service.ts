@@ -17,3 +17,6 @@ const getAllDoctors = async () => {
 export const doctorService = {
     getAllDoctors
 }
+//TODO get doctor by id
+//TODO update doctor
+//TODO delete doctor
