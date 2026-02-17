@@ -9,7 +9,7 @@ const app: Application = express();
 app.use(express.urlencoded({extended: true}));
 
 app.use(express.json());
-app.use("/api/v1/", indexRoute)
+app.use("/api/v1", indexRoute)
 
 app.get('/', async (req: Request, res: Response) => {
     const speciality = await prisma.specialty.create({
