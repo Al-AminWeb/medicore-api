@@ -18,5 +18,5 @@ export const doctorService = {
     getAllDoctors
 }
 //TODO get doctor by id
-//TODO update doctor
+//TODO update doctor using zod update doctor zod schema
 //TODO delete doctor
