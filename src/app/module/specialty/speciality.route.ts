@@ -1,11 +1,5 @@
 import {NextFunction, Router} from "express";
 import {specialityController} from "./speciality.controller";
-import {Request, Response} from "express";
-import {cookieUtils} from "../../utils/cookie";
-import AppError from "../../errorHelper/AppError";
-import status from "http-status";
-import {jwtUtils} from "../../utils/jwt";
-import {envVars} from "../../config/env";
 import {checkAuth} from "../../middleware/checkAuth";
 import {Role} from "../../../generated/prisma/enums";
 
