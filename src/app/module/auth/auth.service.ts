@@ -39,9 +39,32 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
             return patientTx
         })
 
+        const accessToken = tokenUtils.getAccessToken({
+            userId: data.user.id,
+            email: data.user.email,
+            name: data.user.name,
+            role: data.user.role,
+            status: data.user.status,
+            isDeleted: data.user.isDeleted,
+            emailVerified: data.user.emailVerified,
+        })
+
+
+        const refreshToken = tokenUtils.getRefreshToken({
+            userId: data.user.id,
+            email: data.user.email,
+            name: data.user.name,
+            role: data.user.role,
+            status: data.user.status,
+            isDeleted: data.user.isDeleted,
+            emailVerified: data.user.emailVerified,
+        })
+
         return {
             ...data,
-            patient
+            patient,
+            accessToken,
+            refreshToken
         }
 
     } catch (error) {
@@ -97,6 +120,7 @@ const loginUser = async (payload: ILoginUserPayload) => {
         isDeleted: data.user.isDeleted,
         emailVerified: data.user.emailVerified,
     })
+
     return {
         accessToken,
         refreshToken,
