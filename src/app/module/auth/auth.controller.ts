@@ -35,7 +35,7 @@ const loginUser = catchAsync(
     async (req: Request, res: Response) => {
         const payload = req.body;
 
-        const result = await authService.registerPatient(payload);
+        const result = await authService.loginUser(payload);
 
         const {accessToken, refreshToken, token, ...rest} = result
 
