@@ -4,6 +4,7 @@ import {Request, Response} from "express";
 import {sendResponse} from "../../shared/sendResponse";
 import status from "http-status";
 import {tokenUtils} from "../../utils/token";
+import {prisma} from "../../lib/prisma";
 
 
 const registerPatient = catchAsync(
@@ -58,7 +59,22 @@ const loginUser = catchAsync(
 )
 
 
+const getMe = catchAsync(
+    async (req: Request, res: Response) => {
+        const user = req.user;
+
+        const result = await authService.getMe(user);
+        sendResponse(res, {
+            httpStatusCode: status.OK,
+            success: true,
+            message: "Patient fetched successfully",
+            data: result,
+        })
+    }
+)
+
 export const authController = {
     registerPatient,
-    loginUser
+    loginUser,
+    getMe,
 }
