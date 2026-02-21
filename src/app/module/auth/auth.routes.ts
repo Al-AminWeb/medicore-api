@@ -9,5 +9,6 @@ const router = Router();
 router.post('/register',authController.registerPatient)
 router.get('/login',authController.loginUser)
 router.get('/me',checkAuth(Role.ADMIN,Role.DOCTOR,Role.PATIENT,Role.SUPER_ADMIN),authController.getMe)
+router.post("/refresh-token", authController.getNewToken)
 
 export const authRoutes = router;
