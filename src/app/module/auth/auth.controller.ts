@@ -6,6 +6,7 @@ import status from "http-status";
 import {tokenUtils} from "../../utils/token";
 import {prisma} from "../../lib/prisma";
 import AppError from "../../errorHelper/AppError";
+import {cookieUtils} from "../../utils/cookie";
 
 
 const registerPatient = catchAsync(
@@ -124,10 +125,39 @@ const changePassword = catchAsync(
     }
 )
 
+const logOut = catchAsync(
+    async (req: Request, res: Response) => {
+        const betterAuthSessionToken = req.cookies["better-auth.session_token"];
+        const result = await authService.logOut(betterAuthSessionToken);
+        cookieUtils.clearCookie(res, 'accessToken', {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none'
+        });
+        cookieUtils.clearCookie(res, 'refreshToken', {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none'
+        });
+        cookieUtils.clearCookie(res, 'better-auth.session_token', {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none'
+        })
+        sendResponse(res, {
+            httpStatusCode: status.OK,
+            success: true,
+            message: "Logged out successfully",
+            data: result,
+        })
+    }
+)
+
 export const authController = {
     registerPatient,
     loginUser,
     getMe,
     getNewToken,
-    changePassword
+    changePassword,
+    logOut
 }
