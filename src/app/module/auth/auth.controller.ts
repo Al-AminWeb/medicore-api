@@ -166,6 +166,31 @@ const verifyEmail = catchAsync(
     }
 )
 
+const forgetPassword = catchAsync(
+    async (req: Request, res: Response) => {
+        const { email } = req.body;
+        await authService.forgetPassword(email);
+        sendResponse(res, {
+            httpStatusCode: status.OK,
+            success: true,
+            message: "Password reset link sent successfully",
+        });
+    }
+)
+
+const resetPassword = catchAsync(
+    async (req: Request, res: Response) => {
+        const { email, otp, newPassword } = req.body;
+        await authService.resetPassword(email, otp, newPassword);
+
+        sendResponse(res, {
+            httpStatusCode: status.OK,
+            success: true,
+            message: "Password reset successfully",
+        });
+    }
+)
+
 export const authController = {
     registerPatient,
     loginUser,
@@ -174,4 +199,6 @@ export const authController = {
     changePassword,
     logOut,
     verifyEmail,
+    forgetPassword,
+    resetPassword,
 }

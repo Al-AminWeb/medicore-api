@@ -283,26 +283,86 @@ const logOut = async (sessionToken: string) => {
 }
 
 
-
-const verifyEmail = async (email : string, otp : string) => {
+const verifyEmail = async (email: string, otp: string) => {
 
     const result = await auth.api.verifyEmailOTP({
-        body:{
+        body: {
             email,
             otp,
         }
     })
 
-    if(result.status && !result.user.emailVerified){
+    if (result.status && !result.user.emailVerified) {
         await prisma.user.update({
-            where : {
+            where: {
                 email,
             },
-            data : {
+            data: {
                 emailVerified: true,
             }
         })
     }
+}
+
+const forgetPassword = async (email: string) => {
+    const isUserExist = await prisma.user.findUnique({
+        where: {
+            email,
+        }
+    })
+
+    if (!isUserExist) {
+        throw new AppError(status.NOT_FOUND, "User not found")
+    }
+
+    if (!isUserExist.emailVerified) {
+        throw new AppError(status.BAD_REQUEST, "Email is not verified")
+    }
+
+    if (isUserExist.isDeleted || isUserExist.status === UserStatus.DELETED) {
+        throw new AppError(status.NOT_FOUND, "User not found")
+    }
+
+    await auth.api.requestPasswordResetEmailOTP({
+        body: {
+            email,
+        }
+    })
+
+}
+
+
+const resetPassword = async (email: string, otp: string, newPassword: string) => {
+    const isUserExist = await prisma.user.findUnique({
+        where: {
+            email,
+        }
+    })
+
+    if (!isUserExist) {
+        throw new AppError(status.NOT_FOUND, "User not found")
+    }
+
+    if (!isUserExist.emailVerified) {
+        throw new AppError(status.BAD_REQUEST, "Email is not verified")
+    }
+
+    if (isUserExist.isDeleted || isUserExist.status === UserStatus.DELETED) {
+        throw new AppError(status.NOT_FOUND, "User not found")
+    }
+
+    await auth.api.resetPasswordEmailOTP({
+        body: {
+            email,
+            otp,
+            password: newPassword,
+        }
+    })
+    await prisma.session.deleteMany({
+        where: {
+            userId: isUserExist.id,
+        }
+    })
 }
 
 export const authService = {
@@ -313,4 +373,6 @@ export const authService = {
     changePassword,
     logOut,
     verifyEmail,
+    forgetPassword,
+    resetPassword
 }
