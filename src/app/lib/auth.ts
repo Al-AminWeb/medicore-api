@@ -4,6 +4,7 @@ import {prisma} from "./prisma";
 import {Role, UserStatus} from "../../generated/prisma/enums";
 import {bearer, emailOTP} from "better-auth/plugins";
 import {sendEmail} from "../utils/email";
+import {envVars} from "../config/env";
 
 
 export const auth = betterAuth({
@@ -14,6 +15,23 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true,
         requireEmailVerification: true,
+    },
+    socialProviders: {
+        google: {
+            clientId: envVars.GOOGLE_CLIENT_ID,
+            clientSecret: envVars.GOOGLE_CLIENT_SECRET,
+            mapProfileToUser: () => {
+                return {
+                    role: Role.PATIENT,
+                    status: UserStatus.ACTIVE,
+                    needPasswordChange: false,
+                    emailVerified: true,
+                    isDeleted: false,
+                    deletedAt: null,
+
+                }
+            }
+        }
     },
     emailVerification: {
         sendOnSignUp: true,
@@ -73,7 +91,7 @@ export const auth = betterAuth({
                         }
                     })
                 }
-            } else if(type === 'forget-password'){
+            } else if (type === 'forget-password') {
                 const user = await prisma.user.findUnique({
                     where: {
                         email
@@ -85,15 +103,15 @@ export const auth = betterAuth({
                         subject: "Password Reset OTP",
                         templateName: "otp",
                         templateData: {
-                            name:user.name,
+                            name: user.name,
                             otp
                         }
                     })
                 }
             }
         },
-        expiresIn:5*60,
-        otpLength:4,
+        expiresIn: 5 * 60,
+        otpLength: 4,
     })],
 
 

@@ -212,13 +212,11 @@ const getNewToken = async (refreshToken: string, sessionToken: string) => {
             updatedAt: new Date(),
         }
     })
-
     return {
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
         sessionToken: token,
     }
-
 }
 
 const changePassword = async (payload: IChangePasswordPayload, sessionToken: string) => {
@@ -244,7 +242,16 @@ const changePassword = async (payload: IChangePasswordPayload, sessionToken: str
             Authorization: `Bearer ${sessionToken}`
         })
     })
-
+    if(session.user.needPasswordChange){
+        await prisma.user.update({
+            where: {
+                id: session.user.id,
+            },
+            data: {
+                needPasswordChange: false,
+            }
+        })
+    }
 
     const accessToken = tokenUtils.getAccessToken({
         userId: session.user.id,
@@ -281,7 +288,6 @@ const logOut = async (sessionToken: string) => {
     })
     return result;
 }
-
 
 const verifyEmail = async (email: string, otp: string) => {
 
@@ -331,7 +337,6 @@ const forgetPassword = async (email: string) => {
 
 }
 
-
 const resetPassword = async (email: string, otp: string, newPassword: string) => {
     const isUserExist = await prisma.user.findUnique({
         where: {
@@ -358,6 +363,16 @@ const resetPassword = async (email: string, otp: string, newPassword: string) =>
             password: newPassword,
         }
     })
+    if (isUserExist.needPasswordChange) {
+        await prisma.user.update({
+            where: {
+                id: isUserExist.id,
+            },
+            data: {
+                needPasswordChange: false,
+            }
+        })
+    }
     await prisma.session.deleteMany({
         where: {
             userId: isUserExist.id,
