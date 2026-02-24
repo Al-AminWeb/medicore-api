@@ -7,6 +7,7 @@ import {tokenUtils} from "../../utils/token";
 import {prisma} from "../../lib/prisma";
 import AppError from "../../errorHelper/AppError";
 import {cookieUtils} from "../../utils/cookie";
+import {envVars} from "../../config/env";
 
 
 const registerPatient = catchAsync(
@@ -193,11 +194,18 @@ const resetPassword = catchAsync(
 
 
 
-const googleLogin = catchAsync(
-    async (req: Request, res: Response) => {
-        // This route will be handled by Passport.js middleware
-    }
-)
+const googleLogin = catchAsync((req: Request, res: Response) => {
+    const redirectPath = req.query.redirect || "/dashboard";
+
+    const encodedRedirectPath = encodeURIComponent(redirectPath as string);
+
+    const callbackURL = `${envVars.BETTER_AUTH_URL}/api/v1/auth/google/success?redirect=${encodedRedirectPath}`;
+
+    res.render("googleRedirect", {
+        callbackURL : callbackURL,
+        betterAuthUrl : envVars.BETTER_AUTH_URL,
+    })
+})
 
 const googleLoginSuccess = catchAsync(
     async (req: Request, res: Response) => {
