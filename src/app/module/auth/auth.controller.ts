@@ -191,6 +191,52 @@ const resetPassword = catchAsync(
     }
 )
 
+
+
+const googleLogin = catchAsync(
+    async (req: Request, res: Response) => {
+        // This route will be handled by Passport.js middleware
+    }
+)
+
+const googleLoginSuccess = catchAsync(
+    async (req: Request, res: Response) => {
+        const user = req.user;
+        if (!user) {
+            throw new AppError(status.UNAUTHORIZED, "Google authentication failed");
+        }
+
+        const result = await authService.handleGoogleLogin(user);
+
+        const {accessToken, refreshToken, token, ...rest} = result
+
+        tokenUtils.setAccessTokenCookie(res, accessToken);
+        tokenUtils.setRefreshTokenCookie(res, refreshToken);
+        tokenUtils.setBetterAuthSessionCookie(res, token as string);
+
+        sendResponse(res, {
+            httpStatusCode: status.OK,
+            success: true,
+            message: "Logged in with Google successfully",
+            data: {
+                token,
+                accessToken,
+                refreshToken,
+                ...rest,
+            }
+        });
+    }
+)
+
+const handleOAuthError = catchAsync(
+    async (req: Request, res: Response) => {
+        sendResponse(res, {
+            httpStatusCode: status.UNAUTHORIZED,
+            success: false,
+            message: "OAuth authentication failed",
+        });
+    }
+)
 export const authController = {
     registerPatient,
     loginUser,
@@ -201,4 +247,7 @@ export const authController = {
     verifyEmail,
     forgetPassword,
     resetPassword,
+    googleLogin,
+    googleLoginSuccess,
+    handleOAuthError,
 }

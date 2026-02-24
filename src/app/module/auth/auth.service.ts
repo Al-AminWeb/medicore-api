@@ -242,7 +242,7 @@ const changePassword = async (payload: IChangePasswordPayload, sessionToken: str
             Authorization: `Bearer ${sessionToken}`
         })
     })
-    if(session.user.needPasswordChange){
+    if (session.user.needPasswordChange) {
         await prisma.user.update({
             where: {
                 id: session.user.id,
@@ -280,6 +280,7 @@ const changePassword = async (payload: IChangePasswordPayload, sessionToken: str
         ...result,
     }
 }
+
 const logOut = async (sessionToken: string) => {
     const result = await auth.api.signOut({
         headers: new Headers({
@@ -380,6 +381,11 @@ const resetPassword = async (email: string, otp: string, newPassword: string) =>
     })
 }
 
+const googleLoginSuccess =async (user: IRequestUser) => {
+
+}
+
+
 export const authService = {
     registerPatient,
     loginUser,
@@ -389,5 +395,6 @@ export const authService = {
     logOut,
     verifyEmail,
     forgetPassword,
-    resetPassword
+    resetPassword,
+    googleLoginSuccess,
 }
