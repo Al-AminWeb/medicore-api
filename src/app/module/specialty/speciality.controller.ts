@@ -6,7 +6,9 @@ import status from "http-status";
 
 
 const createSpeciality = catchAsync(
+
     async (req: Request, res: Response) => {
+        console.log(req.body)
         const payload = req.body;
         const result = await specialityService.createSpeciality(payload);
         sendResponse(res, {
