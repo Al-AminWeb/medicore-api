@@ -9,7 +9,10 @@ const createSpeciality = catchAsync(
 
     async (req: Request, res: Response) => {
         console.log(req.body)
-        const payload = req.body;
+        const payload = {
+            ...req.body,
+            icon: req.file?.path
+        }
         const result = await specialityService.createSpeciality(payload);
         sendResponse(res, {
             httpStatusCode: status.OK,
