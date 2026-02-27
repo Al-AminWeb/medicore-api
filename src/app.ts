@@ -8,12 +8,14 @@ import cookieParser from "cookie-parser";
 import {toNodeHandler} from "better-auth/node";
 import {auth} from "./app/lib/auth";
 import path from "path";
+import qs from "qs";
+
 
 dotenv.config();
 
 
 const app: Application = express();
-
+app.set("query parser", (str : string) => qs.parse(str));
 app.set('view engine', 'ejs');
 app.set('views', path.resolve(process.cwd(), `src/app/templates/`));
 
