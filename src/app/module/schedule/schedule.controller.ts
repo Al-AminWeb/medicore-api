@@ -1,80 +1,72 @@
+import {Request, Response} from "express";
+import status from "http-status";
+import {IQueryParams} from "../../interfaces/query.interface";
 import {catchAsync} from "../../shared/catchAsync";
 import {sendResponse} from "../../shared/sendResponse";
-import status from "http-status";
-import {Request, Response} from "express";
 import {scheduleService} from "./schedule.service";
 
-const createSchedule = catchAsync(
-    async (req: Request, res: Response) => {
-        const payload = req.body;
-        const schedule = await scheduleService.createSchedule();
-        sendResponse(res, {
-            success: true,
-            message: "Schedule created successfully",
-            data: schedule,
-            httpStatusCode: status.CREATED
-        })
-    }
-)
 
+const createSchedule = catchAsync(async (req: Request, res: Response) => {
+    const payload = req.body;
+    const schedule = await scheduleService.createSchedule(payload);
+    sendResponse(res, {
+        success: true,
+        httpStatusCode: status.CREATED,
+        message: 'Schedule created successfully',
+        data: schedule
+    });
+});
 
-const getAllSchedules = catchAsync(
-    async (req: Request, res: Response) => {
-        const schedule = await scheduleService.getAllSchedules();
-        sendResponse(res, {
-            success: true,
-            message: "Schedule fetched successfully",
-            data: schedule,
-            httpStatusCode: status.OK
-        })
-    }
-)
+const getAllSchedules = catchAsync(async (req: Request, res: Response) => {
+    const query = req.query;
+    const result = await scheduleService.getAllSchedules();
+    sendResponse(res, {
+        success: true,
+        httpStatusCode: status.OK,
+        message: 'Schedules retrieved successfully',
+        data: result
 
-const getScheduleById = catchAsync(
-    async (req: Request, res: Response) => {
+    });
+});
+
+const getScheduleById = catchAsync(async (req: Request, res: Response) => {
+    const {id} = req.params;
+    const schedule = await scheduleService.getScheduleById();
+    sendResponse(res, {
+        success: true,
+        httpStatusCode: status.OK,
+        message: 'Schedule retrieved successfully',
+        data: schedule
+    });
+});
+
+const updateSchedule = catchAsync(async (req: Request, res: Response) => {
+    const {id} = req.params;
+    const payload = req.body;
+    const updatedSchedule = await scheduleService.updateSchedule();
+    sendResponse(res, {
+        success: true,
+        httpStatusCode: status.OK,
+        message: 'Schedule updated successfully',
+        data: updatedSchedule
+    });
+});
+
+const deleteSchedule = catchAsync(async (req: Request, res: Response) => {
         const {id} = req.params;
-        const schedule = await scheduleService.getScheduleById();
+        await scheduleService.deleteSchedule();
         sendResponse(res, {
             success: true,
-            message: "Schedule fetched successfully",
-            data: schedule,
-            httpStatusCode: status.OK
-        })
+            httpStatusCode: status.OK,
+            message: 'Schedule deleted successfully',
+        });
     }
-)
+);
 
-const updateSchedule = catchAsync(
-    async (req: Request, res: Response) => {
-        const {id} = req.params;
-        const payload = req.body;
-        const schedule = await scheduleService.updateSchedule();
-        sendResponse(res, {
-            success: true,
-            message: "Schedule updated successfully",
-            data: schedule,
-            httpStatusCode: status.OK
-        })
-    }
-)
-
-const deleteSchedule = catchAsync(
-    async (req: Request, res: Response) => {
-        const {id} = req.params;
-        const schedule = await scheduleService.deleteSchedule();
-        sendResponse(res, {
-            success: true,
-            message: "Schedule deleted successfully",
-            httpStatusCode: status.NO_CONTENT,
-            data: schedule
-        })
-    }
-)
-
-
-export const scheduleController = {
+export const ScheduleController = {
+    createSchedule,
     getAllSchedules,
     getScheduleById,
-    createSchedule,
     updateSchedule,
-    deleteSchedule,
+    deleteSchedule
 }

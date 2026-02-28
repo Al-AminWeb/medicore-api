@@ -1,88 +1,105 @@
-// import {catchAsync} from "../../shared/catchAsync";
-// import {sendResponse} from "../../shared/sendResponse";
-// import status from "http-status";
-//
-// const createSchedule = catchAsync(
-//     async (req, res) => {
-//         const payload = req.body;
-//         const schedule = await scheduleService.createSchedule(payload);
-//         sendResponse(res, {
-//             success: true,
-//             message: "Schedule created successfully",
-//             data: schedule,
-//             httpStatusCode: status.CREATED
-//         })
-//     }
-// )
-//
-//
-// const getAllSchedule = catchAsync(
-//     async (req, res) => {
-//         const schedule = await scheduleService.getAllSchedule();
-//         sendResponse(res, {
-//             success: true,
-//             message: "Schedule fetched successfully",
-//             data: schedule,
-//             httpStatusCode: status.OK
-//         })
-//     }
-// )
-//
-// const getScheduleById = catchAsync(
-//     async (req, res) => {
-//         const {id} = req.params;
-//         const schedule = await scheduleService.getScheduleById(id);
-//         sendResponse(res, {
-//             success: true,
-//             message: "Schedule fetched successfully",
-//             data: schedule,
-//             httpStatusCode: status.OK
-//         })
-//     }
-// )
-//
-// const updateSchedule = catchAsync(
-//     async (req, res) => {
-//         const {id} = req.params;
-//         const payload = req.body;
-//         const schedule = await scheduleService.updateSchedule(id, payload);
-//         sendResponse(res, {
-//             success: true,
-//             message: "Schedule updated successfully",
-//             data: schedule,
-//             httpStatusCode: status.OK
-//         })
-//     }
-// )
-//
-// const deleteSchedule = catchAsync(
-//     async (req, res) => {
-//         const {id} = req.params;
-//         const schedule = await scheduleService.deleteSchedule(id);
-//         sendResponse(res, {
-//             success: true,
-//             message: "Schedule deleted successfully",
-//             httpStatusCode: status.NO_CONTENT,
-//             data: schedule
-//         })
-//     }
-// )
-//
-//
-// export const scheduleController = {
-//     getAllSchedule,
-//     getScheduleById,
-//     createSchedule,
-//     updateSchedule,
-//     deleteSchedule,
-// }
+import {ICreateSchedulePayload} from "./schedule.interface";
+import {addMinutes, addHours, format} from "date-fns";
+import {convertDateTime} from "./schedule.utills";
+import {prisma} from "../../lib/prisma";
+import {IQueryParams} from "../../interfaces/query.interface";
+import {QueryBuilder} from "../../utils/queryBuilder";
+import {Prisma, Schedule} from "../../../generated/prisma/client";
+import {scheduleFilterableFields, scheduleIncludeConfig, scheduleSearchableFields} from "./schedule.constant";
 
 
-const createSchedule = async () => {
+const createSchedule = async (payload: ICreateSchedulePayload) =>{
+    const { startDate, endDate, startTime, endTime } = payload;
+
+    const interval = 30;
+
+    const currentDate = new Date(startDate);
+    const lastDate = new Date(endDate);
+
+    const schedules = [];
+
+    while (currentDate <= lastDate) {
+        const startDateTime = new Date(
+            addMinutes(
+                addHours(
+                    `${format(currentDate, "yyyy-MM-dd")}`,
+                    Number(startTime.split(":")[0])
+                ),
+                Number(startTime.split(":")[1])
+            )
+        );
+
+        const endDateTime = new Date(
+            addMinutes(
+                addHours(
+                    `${format(currentDate, "yyyy-MM-dd")}`,
+                    Number(endTime.split(":")[0])
+                ),
+                Number(endTime.split(":")[1])
+            )
+        );
+
+        while (startDateTime < endDateTime) {
+            const s = await convertDateTime(startDateTime);
+            const e = await convertDateTime(addMinutes(startDateTime, interval));
+
+            const scheduleData = {
+                startDateTime: s,
+                endDateTime: e
+            }
+
+            const existingSchedule = await prisma.schedule.findFirst({
+                where: {
+                    startDateTime: scheduleData.startDateTime,
+                    endDateTime: scheduleData.endDateTime
+                }
+            })
+
+            if (!existingSchedule) {
+                const result = await prisma.schedule.create({
+                    data: scheduleData
+                })
+                console.log(result);
+                schedules.push(result);
+            }
+
+            startDateTime.setMinutes(startDateTime.getMinutes() + interval)
+        }
+
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return schedules;
 }
 
-const getAllSchedules = async () => {
+const getAllSchedules = async (query : IQueryParams) => {
+    const queryBuilder = new QueryBuilder<Schedule, Prisma.ScheduleWhereInput, Prisma.ScheduleInclude>(
+        prisma.schedule,
+        query,
+        {
+            searchableFields: scheduleSearchableFields,
+            filterableFields:scheduleFilterableFields
+        }
+    )
+
+    const result = await queryBuilder
+        .search()
+        .filter()
+        .paginate()
+        .dynamicInclude(scheduleIncludeConfig)
+        .sort()
+        .fields()
+        .execute();
+
+    return result;
 }
+
+
+
+
+
+
+
 const getScheduleById = async () => {
 }
 const updateSchedule = async () => {
