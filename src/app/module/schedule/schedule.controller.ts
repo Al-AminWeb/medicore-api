@@ -63,7 +63,7 @@ const deleteSchedule = catchAsync(async (req: Request, res: Response) => {
     }
 );
 
-export const ScheduleController = {
+export const scheduleController = {
     createSchedule,
     getAllSchedules,
     getScheduleById,
