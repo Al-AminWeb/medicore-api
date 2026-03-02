@@ -20,6 +20,16 @@ app.set('view engine', 'ejs');
 app.set('views', path.resolve(process.cwd(), `src/app/templates/`));
 
 
+app.post("/webhook", express.raw({ type: "application/json" }),
+    async(req: Request, res: Response) => {
+        console.log('webhook received:',req.body)
+        res.status(200).send('ok')
+    }
+
+    )
+
+
+
 app.use('/api/auth', toNodeHandler(auth))
 app.use(express.urlencoded({extended: true}));
 
