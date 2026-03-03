@@ -19,7 +19,7 @@ const createSchedule = catchAsync(async (req: Request, res: Response) => {
 
 const getAllSchedules = catchAsync(async (req: Request, res: Response) => {
     const query = req.query;
-    const result = await scheduleService.getAllSchedules();
+    const result = await scheduleService.getAllSchedules(query as IQueryParams);
     sendResponse(res, {
         success: true,
         httpStatusCode: status.OK,
@@ -31,7 +31,7 @@ const getAllSchedules = catchAsync(async (req: Request, res: Response) => {
 
 const getScheduleById = catchAsync(async (req: Request, res: Response) => {
     const {id} = req.params;
-    const schedule = await scheduleService.getScheduleById();
+    const schedule = await scheduleService.getScheduleById(id as string);
     sendResponse(res, {
         success: true,
         httpStatusCode: status.OK,
@@ -54,7 +54,7 @@ const updateSchedule = catchAsync(async (req: Request, res: Response) => {
 
 const deleteSchedule = catchAsync(async (req: Request, res: Response) => {
         const {id} = req.params;
-        await scheduleService.deleteSchedule();
+        await scheduleService.deleteSchedule(id as string);
         sendResponse(res, {
             success: true,
             httpStatusCode: status.OK,
