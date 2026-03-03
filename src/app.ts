@@ -10,19 +10,19 @@ import {auth} from "./app/lib/auth";
 import path from "path";
 import qs from "qs";
 import {PaymentController} from "./app/module/payment/payment.controller";
-
+import cron from "node-cron";
+import {AppointmentService} from "./app/module/Appointment/appointment.service";
 
 dotenv.config();
 
 
 const app: Application = express();
-app.set("query parser", (str : string) => qs.parse(str));
+app.set("query parser", (str: string) => qs.parse(str));
 app.set('view engine', 'ejs');
 app.set('views', path.resolve(process.cwd(), `src/app/templates/`));
 
 
-app.post("/webhook", express.raw({ type: "application/json" }),PaymentController.handleStripeWebhookEvent)
-
+app.post("/webhook", express.raw({type: "application/json"}), PaymentController.handleStripeWebhookEvent)
 
 
 app.use('/api/auth', toNodeHandler(auth))
@@ -30,6 +30,15 @@ app.use(express.urlencoded({extended: true}));
 
 app.use(express.json());
 app.use(cookieParser())
+
+cron.schedule("*/25 * * * * ", async () => {
+    try {
+        console.log("Running cron job to cancel unpaid appointments");
+        await AppointmentService.cancelUnpaidAppointments();
+    } catch (error: any) {
+        console.log("Error while running cron job to cancel unpaid appointments", error.message);
+    }
+})
 app.use("/api/v1", indexRoute)
 
 app.get('/', async (req: Request, res: Response) => {
