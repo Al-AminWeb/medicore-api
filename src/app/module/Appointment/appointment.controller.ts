@@ -27,35 +27,36 @@ const getMyAppointments = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
-// const changeAppointmentStatus = catchAsync(async (req: Request, res: Response) => {
-//     const appointmentId = req.params.id;
-//     const payload = req.body;
-//     const user = req.user;
-//
-//     const updatedAppointment = await AppointmentService.changeAppointmentStatus(appointmentId as string, payload, user);
-//     sendResponse(res, {
-//         success: true,
-//         httpStatusCode: status.OK,
-//         message: 'Appointment status updated successfully',
-//         data: updatedAppointment
-//     });
-// });
-//
-// const getMySingleAppointment = catchAsync(async (req: Request, res: Response) => {
-//     const appointmentId = req.params.id;
-//     const user = req.user;
-//
-//     const appointment = await AppointmentService.getMySingleAppointment(appointmentId as string, user);
-//     sendResponse(res, {
-//         success: true,
-//         httpStatusCode: status.OK,
-//         message: 'Appointment retrieved successfully',
-//         data: appointment
-//     });
-// });
+const changeAppointmentStatus = catchAsync(async (req: Request, res: Response) => {
+    const appointmentId = req.params.id;
+    const payload = req.body;
+    const user = req.user;
+
+    const updatedAppointment = await AppointmentService.changeAppointmentStatus(appointmentId as string, payload, user);
+    sendResponse(res, {
+        success: true,
+        httpStatusCode: status.OK,
+        message: 'Appointment status updated successfully',
+        data: updatedAppointment
+    });
+});
+
+const getMySingleAppointment = catchAsync(async (req: Request, res: Response) => {
+    const appointmentId = req.params.id;
+    const user = req.user;
+
+    const appointment = await AppointmentService.getMySingleAppointment(appointmentId as string, user);
+    sendResponse(res, {
+        success: true,
+        httpStatusCode: status.OK,
+        message: 'Appointment retrieved successfully',
+        data: appointment
+    });
+});
 
 const getAllAppointments = catchAsync(async (req: Request, res: Response) => {
-    const appointments = await AppointmentService.getAllAppointments();
+    const queryParams = req.query;
+    const appointments = await AppointmentService.getAllAppointments(queryParams);
     sendResponse(res, {
         success: true,
         httpStatusCode: status.OK,
@@ -92,8 +93,8 @@ const initiatePayment = catchAsync(async (req: Request, res: Response) => {
 export const AppointmentController = {
     bookAppointment,
     getMyAppointments,
-    // changeAppointmentStatus,
-    // getMySingleAppointment,
+    changeAppointmentStatus,
+    getMySingleAppointment,
     getAllAppointments,
     bookAppointmentWithPayLater,
     initiatePayment,
