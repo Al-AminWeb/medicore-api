@@ -19,6 +19,7 @@ router.use("/admins", adminRoutes)
 router.use("/schedules", scheduleRoutes)
 router.use("/doctor-schedules", DoctorScheduleRoutes)
 // router.use("/appointments", AppointmentRoutes)
+router.use("/prescription", )
 
 
 export const indexRoute = router;
