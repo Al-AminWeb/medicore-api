@@ -2,12 +2,13 @@
 import status from "http-status";
 import { Role } from "../../../generated/prisma/enums";
 import { deleteFileFromCloudinary, uploadFileToCloudinary } from "../../config/cloudinary.config";
-import AppError from "../../errorHelpers/AppError";
-import { IRequestUser } from "../../interfaces/requestUser.interface";
+
 import { prisma } from "../../lib/prisma";
 import { sendEmail } from "../../utils/email";
 import { ICreatePrescriptionPayload } from "./prescription.interface";
 import { generatePrescriptionPDF } from "./prescription.utils";
+import {IRequestUser} from "../../interfaces/requestUser.Interfaces";
+import AppError from "../../errorHelper/AppError";
 
 const givePrescription = async (user : IRequestUser, payload : ICreatePrescriptionPayload) => {
     const doctorData = await prisma.doctor.findUniqueOrThrow({
